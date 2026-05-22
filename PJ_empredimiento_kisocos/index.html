@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KioscoPrecio — Comparador de proveedores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon"><i class="ti ti-shopping-cart"></i></span>
+      <div>
+        <p class="brand-name">KioscoPrecio</p>
+        <p class="brand-sub">Gestión de proveedores</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-tab="tab-foto">
+        <i class="ti ti-camera"></i> Nueva lista
+      </button>
+      <button class="nav-item" data-tab="tab-db">
+        <i class="ti ti-database"></i> Base de datos
+      </button>
+      <button class="nav-item" data-tab="tab-analisis">
+        <i class="ti ti-chart-bar"></i> Análisis
+      </button>
+      <button class="nav-item" data-tab="tab-historial">
+        <i class="ti ti-history"></i> Historial
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="db-status">
+        <i class="ti ti-circle-filled" id="db-dot"></i>
+        <span id="db-status-txt">DB conectada</span>
+      </div>
+      <p id="db-count" class="db-count">0 productos</p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TAB: NUEVA LISTA -->
+    <section class="tab active" id="tab-foto">
+      <div class="page-header">
+        <h1>Analizar lista de proveedor</h1>
+        <p>Subí la foto de la lista y Claude extrae y compara los precios automáticamente</p>
+      </div>
+
+      <div class="two-col">
+        <div class="card upload-card">
+          <label class="upload-zone" id="upload-zone" for="file-input">
+            <i class="ti ti-photo-up upload-icon"></i>
+            <p class="upload-title">Arrastrá o seleccioná la foto</p>
+            <p class="upload-sub">JPG, PNG, WEBP · Máx 10MB</p>
+            <input type="file" id="file-input" accept="image/*" hidden />
+          </label>
+          <img id="preview-img" class="preview-img" style="display:none" alt="Vista previa" />
+
+          <div class="form-row" style="margin-top:1.25rem">
+            <label class="form-label">Nombre del proveedor</label>
+            <input type="text" id="proveedor-nombre" class="form-input" placeholder="Ej: Distribuidora Norte" />
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Fecha de la lista</label>
+            <input type="date" id="proveedor-fecha" class="form-input" />
+          </div>
+
+          <button class="btn btn-primary" id="btn-analizar" disabled>
+            <i class="ti ti-sparkles"></i> Analizar lista
+          </button>
+
+          <div class="progress-wrap" id="progress-wrap" style="display:none">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <p class="progress-msg" id="progress-msg">Procesando imagen…</p>
+          </div>
+        </div>
+
+        <div class="card info-card">
+          <h3 class="card-title">¿Cómo funciona?</h3>
+          <ol class="steps-list">
+            <li><span class="step-num">1</span><span>Subís la foto de la lista del proveedor</span></li>
+            <li><span class="step-num">2</span><span>Claude AI lee y extrae cada producto con su precio</span></li>
+            <li><span class="step-num">3</span><span>Se compara con la base de datos del kiosco</span></li>
+            <li><span class="step-num">4</span><span>Solo se actualizan los precios que cambiaron</span></li>
+            <li><span class="step-num">5</span><span>Se genera el análisis de conveniencia por producto</span></li>
+          </ol>
+          <div class="leyenda">
+            <p class="leyenda-title">Criterio de recomendación</p>
+            <div class="leyenda-item"><span class="badge conviene">Conviene</span><span>Precio bajó o es nuevo y razonable</span></div>
+            <div class="leyenda-item"><span class="badge neutro">Neutro</span><span>Subió menos del 15% (inflación normal)</span></div>
+            <div class="leyenda-item"><span class="badge no-conviene">No conviene</span><span>Subió más del 15% o precio elevado</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: BASE DE DATOS -->
+    <section class="tab" id="tab-db">
+      <div class="page-header row-header">
+        <div>
+          <h1>Base de datos de precios</h1>
+          <p>Precios actuales de todos los productos registrados</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline" id="btn-export-csv"><i class="ti ti-download"></i> Exportar CSV</button>
+          <button class="btn btn-danger-outline" id="btn-clear-db"><i class="ti ti-trash"></i> Limpiar DB</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-toolbar">
+          <div class="search-wrap">
+            <i class="ti ti-search search-icon"></i>
+            <input type="text" id="search-db" class="form-input search-input" placeholder="Buscar producto o proveedor…" />
+          </div>
+          <div class="filter-wrap">
+            <select id="filter-proveedor" class="form-input form-select">
+              <option value="">Todos los proveedores</option>
+            </select>
+          </div>
+        </div>
+        <div id="db-table-wrap">
+          <div class="empty-state">
+            <i class="ti ti-database-off"></i>
+            <p>La base de datos está vacía.</p>
+            <p class="empty-sub">Analizá tu primera lista para empezar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: ANÁLISIS -->
+    <section class="tab" id="tab-analisis">
+      <div class="page-header">
+        <h1>Análisis de último pedido</h1>
+        <p id="analisis-meta">Todavía no hay análisis generado.</p>
+      </div>
+
+      <div class="summary-grid" id="summary-grid" style="display:none">
+        <div class="summary-card green">
+          <p class="summary-label">Conviene comprar</p>
+          <p class="summary-value" id="s-conviene">0</p>
+        </div>
+        <div class="summary-card red">
+          <p class="summary-label">No conviene</p>
+          <p class="summary-value" id="s-no-conviene">0</p>
+        </div>
+        <div class="summary-card yellow">
+          <p class="summary-label">Neutro</p>
+          <p class="summary-value" id="s-neutro">0</p>
+        </div>
+        <div class="summary-card blue">
+          <p class="summary-label">Total productos</p>
+          <p class="summary-value" id="s-total">0</p>
+        </div>
+      </div>
+
+      <div id="analisis-cards">
+        <div class="empty-state">
+          <i class="ti ti-chart-bar-off"></i>
+          <p>Todavía no hay análisis.</p>
+          <p class="empty-sub">Subí una foto en "Nueva lista" para empezar.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: HISTORIAL -->
+    <section class="tab" id="tab-historial">
+      <div class="page-header">
+        <h1>Historial de análisis</h1>
+        <p>Todas las listas analizadas, ordenadas por fecha</p>
+      </div>
+      <div id="historial-list">
+        <div class="empty-state">
+          <i class="ti ti-history"></i>
+          <p>Todavía no hay historial.</p>
+          <p class="empty-sub">Cada análisis queda guardado acá.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
