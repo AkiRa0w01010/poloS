@@ -6,7 +6,7 @@
 kiosco-precios/
 ├── index.html          → Estructura de la app
 ├── style.css           → Estilos (tema oscuro industrial)
-├── script.js           → Lógica completa: Claude AI + DB + UI
+├── script.js           → Lógica completa: Gemini -2.5 flash + DB + UI
 └── kiosco_precio.sql   → Schema de base de datos para MySQL Workbench
 ```
 
